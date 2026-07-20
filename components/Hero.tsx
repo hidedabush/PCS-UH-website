@@ -3,130 +3,138 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Github } from "lucide-react";
-import AnimatedGrid from "@/components/AnimatedGrid";
-import TerminalLabel from "@/components/TerminalLabel";
 import { GITHUB_URL } from "@/data/nav";
+import GpuAnnotation from "@/components/GpuAnnotation";
 
 const container = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.09, delayChildren: 0.15 } },
+  visible: { transition: { staggerChildren: 0.07, delayChildren: 0.1 } },
 };
 
 const item = {
-  hidden: { opacity: 0, y: 26 },
+  hidden: { opacity: 0, y: 22 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.7, ease: [0.21, 0.65, 0.36, 1] as const },
+    transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] as const },
   },
 };
 
 /**
- * The hero no longer carries its own 3D canvas — the 4090 render is the
- * shared page-level layer from ScrollGpuScene, which starts zoomed in and
- * roughly centered/right behind this section. Copy lives in the LEFT
- * column only (lg:col-span-6) so the card is never covered — the right
- * half of the viewport stays clear for it, ringed by HUD labels.
+ * Editorial hero, restructured after a reference pass (Dogstudio/Dept-
+ * style): oversized stacked display type is allowed to overlap the GPU
+ * directly, instead of staying confined to its own column — see DESIGN.md
+ * § Hero. The GPU (ScrollGpuScene, fixed page-root layer) sits behind
+ * everything here; this component only lays out the foreground.
  */
 export default function Hero() {
   return (
     <section
       id="home"
-      className="relative flex min-h-screen flex-col justify-center pt-16"
+      className="relative flex min-h-screen flex-col justify-between gap-8 pb-12 pt-28 sm:pb-16 sm:pt-32"
       aria-label="Introduction"
     >
-      <AnimatedGrid depthShift />
-      <div
+      {/* Thin diagonal accent lines — a structural device, not chrome.
+          Low-contrast (textFaint), never uhred (that stays a ≤5%
+          micro-accent per DESIGN-ANTI-PATTERNS.md). */}
+      <svg
+        className="pointer-events-none absolute inset-0 h-full w-full opacity-40"
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-hero-radial"
-      />
+        preserveAspectRatio="none"
+      >
+        <line x1="0%" y1="8%" x2="38%" y2="62%" stroke="#5C5C63" strokeWidth="1" />
+        <line x1="82%" y1="18%" x2="58%" y2="78%" stroke="#5C5C63" strokeWidth="1" />
+      </svg>
 
-      {/* Floating HUD micro-labels ring the GPU on the right — desktop only */}
-      <TerminalLabel label="CUDA_KERNELS" className="right-[6%] top-[16%]" align="right" delay={0.9} />
-      <TerminalLabel label="GPU_ARCH" className="right-[2%] top-[38%]" align="right" delay={1.05} />
-      <TerminalLabel label="THREAD_BLOCKS" className="right-[8%] top-[58%]" align="right" delay={1.0} />
-      <TerminalLabel label="HPC_SYSTEMS" className="right-[14%] top-[76%]" align="right" delay={1.15} />
-      <TerminalLabel label="AI_INFRA" className="left-6 bottom-[10%]" align="left" delay={1.2} />
-      <TerminalLabel label="PARALLEL_EXECUTION" className="right-[22%] bottom-[6%]" align="right" delay={1.25} />
-
-      <div className="relative z-10 mx-auto flex w-full max-w-site flex-1 flex-col justify-center px-4 sm:px-6 lg:px-10">
-        <div className="lg:grid lg:grid-cols-12 lg:items-center">
-          <motion.div
-            variants={container}
-            initial="hidden"
-            animate="visible"
-            className="flex flex-col items-center text-center lg:col-span-5 lg:items-start lg:text-left"
-          >
-            <motion.p
-              variants={item}
-              className="mb-5 font-mono text-[11px] tracking-[0.3em] text-gpu"
-            >
-              /// UNIVERSITY OF HOUSTON PARALLEL COMPUTING SOCIETY
-            </motion.p>
-
-            <motion.h1
-              variants={item}
-              className="font-hero uppercase leading-[0.95] tracking-tight text-textPrimary"
-            >
-              <span className="block text-3xl font-bold sm:text-4xl md:text-5xl">
-                The Future of
-              </span>
-              <span className="headline-gradient glow-text block text-5xl font-black sm:text-6xl md:text-7xl xl:text-8xl">
-                Computing
-              </span>
-              <span className="block text-3xl font-bold sm:text-4xl md:text-5xl">
-                Is Parallel<span className="text-gpu">.</span>
-              </span>
-            </motion.h1>
-
-            <motion.p
-              variants={item}
-              className="mt-6 max-w-lg text-sm leading-relaxed text-textSecondary md:text-base"
-            >
-              A student-led community for GPU computing, CUDA, and
-              high-performance systems.
-            </motion.p>
-            <motion.p
-              variants={item}
-              className="mt-2 max-w-md font-mono text-xs text-textMuted"
-            >
-              No prior GPU experience required. Bring curiosity.
-            </motion.p>
-
-            <motion.div
-              variants={item}
-              className="mt-9 flex flex-wrap items-center justify-center gap-4 lg:justify-start"
-            >
-              <Link
-                href="/membership"
-                className="group inline-flex items-center gap-2 rounded-md border border-lineActive bg-gpu px-5 py-3 font-mono text-xs font-medium uppercase tracking-[0.16em] text-obsidian transition-all hover:bg-mint hover:shadow-glowStrong"
-              >
-                Join PCS
-                <ArrowRight
-                  className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                  aria-hidden
-                />
-              </Link>
-              <a
-                href={GITHUB_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-md border border-line px-5 py-3 font-mono text-xs uppercase tracking-[0.16em] text-textPrimary transition-all hover:border-lineActive hover:text-mint"
-              >
-                <Github className="h-4 w-4" aria-hidden />
-                Explore GitHub
-              </a>
-              <a
-                href="#offer"
-                className="font-mono text-xs uppercase tracking-[0.18em] text-textSecondary transition-colors hover:text-holo"
-              >
-                View Workshops →
-              </a>
-            </motion.div>
-          </motion.div>
-          {/* lg:col-span-6 intentionally left empty — the GPU render shows through here */}
-        </div>
+      <div className="relative z-10 mx-auto w-full max-w-site px-4 sm:px-6 lg:px-10">
+        <motion.a
+          href="#offer"
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="inline-flex items-center gap-2 text-sm font-medium text-textMuted transition-colors hover:text-white"
+        >
+          <ArrowRight className="h-3.5 w-3.5 -rotate-45 text-accent" aria-hidden />
+          View Workshops
+        </motion.a>
       </div>
+
+      <motion.div
+        variants={container}
+        initial="hidden"
+        animate="visible"
+        className="relative z-10 mx-auto w-full max-w-site px-4 sm:px-6 lg:px-10"
+      >
+        <motion.p variants={item} className="mb-2 text-sm font-medium text-textMuted">
+          University of Houston Parallel Computing Society
+        </motion.p>
+
+        <h1 className="font-display font-semibold leading-[0.95] tracking-tight text-white">
+          <motion.span
+            variants={item}
+            className="block text-6xl sm:text-7xl md:text-8xl xl:text-[7.5rem]"
+          >
+            The future
+          </motion.span>
+          <motion.span
+            variants={item}
+            className="block text-6xl sm:text-7xl md:text-8xl xl:text-[7.5rem]"
+          >
+            of computing
+          </motion.span>
+          <motion.span
+            variants={item}
+            className="block text-6xl text-accent sm:text-7xl md:text-8xl xl:text-[7.5rem]"
+          >
+            is parallel.
+          </motion.span>
+        </h1>
+      </motion.div>
+
+      <div className="relative z-10 mx-auto w-full max-w-site px-4 sm:px-6 lg:px-10">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+          className="max-w-md"
+        >
+          <p className="text-base leading-relaxed text-textMuted">
+            A student-led community for GPU computing, CUDA, and
+            high-performance systems.
+          </p>
+          <p className="mt-2 text-sm text-textFaint">
+            No prior GPU experience required.
+          </p>
+
+          <div className="mt-7 flex flex-wrap items-center gap-3">
+            <Link
+              href="/membership"
+              className="group inline-flex items-center gap-2 bg-accent px-5 py-3 text-sm font-medium text-black transition-colors hover:bg-accentHover"
+            >
+              Join PCS
+              <ArrowRight
+                className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                aria-hidden
+              />
+            </Link>
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 border border-line px-5 py-3 text-sm font-medium text-white transition-colors hover:border-textFaint"
+            >
+              <Github className="h-4 w-4" aria-hidden />
+              Explore GitHub
+            </a>
+          </div>
+        </motion.div>
+      </div>
+
+      <GpuAnnotation
+        label="24GB GDDR6X"
+        side="left"
+        className="right-[6%] top-[24%] -translate-y-1/2"
+      />
     </section>
   );
 }

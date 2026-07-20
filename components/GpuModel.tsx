@@ -18,6 +18,14 @@ const MODEL_URL = "/models/geforce_rtx_4090_founders_edition.glb";
 // other arrays are the pose values at that same index. All of it is read
 // through interpolateStops() below, once per rendered frame.
 // ---------------------------------------------------------------------
+// KNOWN LIMITATION: these assume the 5 landing sections are equal-height,
+// so "stop 1" (mission) lands exactly at 25% of total scroll. They aren't
+// (Hero is a fixed min-h-screen; Mission/Offerings/GitHub/FinalCTA are
+// content-sized), so in practice the pose at Mission's actual scroll
+// position is a blend between stop 1 and stop 2, not pure stop-1 values —
+// tuning TX/TZ/ZOOM here gets you close but not exact. A future pass
+// should compute real stop fractions from each section's measured
+// offsetTop/scrollHeight instead of assuming quarters.
 const SCROLL_STOPS = [0, 1 / 4, 2 / 4, 3 / 4, 1];
 /** rotation around the vertical axis (turntable spin) */
 const POSE_Y = [-0.15, 0.75, -0.85, 1.35, 1.9];
@@ -31,22 +39,51 @@ const POSE_X = [0.05, 0.22, -0.18, 0.24, 0.1];
 // the left, since the camera sits on-axis at x=0 looking at the origin
 // with no roll). Column sides live in the section components:
 //   [0] hero    — copy in the LEFT column  → push GPU RIGHT (+)
-//   [1] mission — copy in the RIGHT column → push GPU LEFT  (-)
+//   [1] mission — copy in the LEFT column  → push GPU RIGHT (+)
 //   [2] offer   — copy in the LEFT column  → push GPU RIGHT (+)
 //   [3] github  — copy centered/narrow     → small nudge only
 //   [4] join    — copy centered, GPU faded → small nudge only
+// [1] was previously tuned assuming Mission's copy sat in the right
+// column (pushing the GPU left); Mission.tsx actually places its Heading
+// in the left column (lg:col-span-5, first) with the pillar list on the
+// right, and DESIGN.md specifies the GPU should move *right* at Mission —
+// flipped the sign to match both. [0]/[1] magnitudes also increased from
+// the original 58/-68 — review feedback was that hero→mission read as
+// "center and rotate," not real spatial travel; paired with the bigger
+// POSE_ZOOM gap below, the card now visibly travels and pulls back, not
+// just turns in place.
 // These are tuned against a ~16:9 desktop window and then scaled per
 // viewport at render time — see `lateralScale` in GpuCard below.
-const POSE_TX = [58, -68, 74, 18, -10];
+// [0] pulled back toward center (175→30) after the Hero composition
+// changed to deliberately let oversized type overlap the card (see
+// DESIGN.md § Hero) — the wide rightward push was only needed while copy
+// was confined to its own column and had to be dodged; that constraint no
+// longer applies at hero specifically.
+// [1] stays pushed right, paired with the bigger POSE_TZ[1] pullback below
+// — Mission still keeps copy and GPU in separate columns.
+const POSE_TX = [30, 130, 74, 18, -10];
 /** vertical drift (world units) */
 const POSE_TY = [-4, 8, -10, 5, -3];
 /** depth drift (world units) — moves the card itself closer/farther,
- *  independent of the camera dolly below, for real X+Y+Z movement. */
-const POSE_TZ = [0, -22, 18, -14, 10];
+ *  independent of the camera dolly below, for real X+Y+Z movement.
+ *  [1] pushed further back (-22→-42) — real screenshots showed the card,
+ *  even pushed right, still cutting diagonally across the Learn/Build/
+ *  Connect column at the old depth. Shrinking it via depth+zoom (below)
+ *  instead of a bigger lateral push keeps the "moves right" direction
+ *  from DESIGN.md while actually clearing the text. */
+const POSE_TZ = [0, -110, 18, -14, 10];
 /** camera distance — SMALLER = zoomed in, LARGER = zoomed out. Stop 0
  *  (hero) is the tight framing; it pulls back further at each later stop
- *  so the lateral drift above still reads as a full, uncropped card. */
-const POSE_ZOOM = [300, 365, 415, 445, 465];
+ *  so the lateral drift above still reads as a full, uncropped card.
+ *  Hero tightened (300→255) and the hero→mission gap widened further
+ *  (365→470, paired with POSE_TZ[1] above) so Mission's card reads
+ *  meaningfully smaller/farther, not just shifted sideways. */
+// [2]-[4] nudged up too, just enough to keep this monotonically
+// increasing after [1]'s jump to 470 — those sections are out of scope
+// for this pass (not touching Offerings/GitHub/Footer), but leaving a
+// zoom-in bounce right after Mission would be an obvious, avoidable glitch
+// for anyone scrolling past it.
+const POSE_ZOOM = [285, 520, 540, 560, 580];
 
 /** The aspect ratio POSE_TX/POSE_TZ were tuned against. Wider windows show
  *  more world-width for the same vertical FOV, so lateral drift needs to
@@ -133,9 +170,14 @@ function CameraRig({
     // Mobile stacks content instead of dodging left/right, so it doesn't
     // need the wide lateral drift — pull back a bit further instead, to
     // keep the card from dominating a small screen.
+    // Mobile pulls back further still (1.2→1.6) — real screenshots at
+    // 390px showed the hero card, even with reduced lateral drift, still
+    // visually dominating and crossing directly through the stacked text
+    // (mobile has no side column to dodge into; the card sits fixed behind
+    // the same column the text is in).
     const targetZ =
       interpolateStops(scrollProgress.get(), SCROLL_STOPS, POSE_ZOOM) *
-      (mobile ? 1.2 : 1);
+      (mobile ? 1.6 : 1);
 
     if (paused) {
       camera.position.z = targetZ;
@@ -167,6 +209,12 @@ function GpuCard({
   // push reflectivity and cut roughness for a glossier, show-off finish.
   // (90 units, not the original ~6, because the camera now sits ~300 units
   // back on a telephoto lens — see the Canvas camera prop below.)
+  // Roughness floor / envMapIntensity were previously tuned near-mirror
+  // (0.12 / 2.4); real screenshots at the tighter hero zoom showed that
+  // combination throwing a blown-out specular highlight straight across
+  // the body copy on every breakpoint — dialed back to "glossy" rather
+  // than "mirror" so reflections stay a premium-metal cue, not a legibility
+  // hazard.
   useMemo(() => {
     const box = new THREE.Box3().setFromObject(scene);
     const size = box.getSize(new THREE.Vector3());
@@ -183,8 +231,8 @@ function GpuCard({
       const materials = Array.isArray(obj.material) ? obj.material : [obj.material];
       for (const mat of materials) {
         if (mat instanceof THREE.MeshStandardMaterial) {
-          mat.envMapIntensity = 2.4;
-          mat.roughness = Math.max(0.12, mat.roughness * 0.55);
+          mat.envMapIntensity = 1.5;
+          mat.roughness = Math.max(0.32, mat.roughness * 0.7);
           mat.needsUpdate = true;
         }
       }
@@ -239,10 +287,17 @@ function GpuCard({
   });
 
   return (
+    // Mount pose is deliberately offset from the true hero target
+    // (POSE_Y[0]/POSE_TZ[0]) — the per-frame lerp above (already reading
+    // interpolateStops at scroll=0, which resolves to exactly that target)
+    // pulls it in from here on load, giving the card a genuine one-time
+    // entrance (turning + arriving from depth) instead of appearing
+    // already parked in its resting pose. Paired with CameraRig's own
+    // wider starting distance below for a compound dolly-in.
     <group
       ref={group}
-      rotation={[POSE_X[0], POSE_Y[0], POSE_Z[0]]}
-      position={[POSE_TX[0], POSE_TY[0], POSE_TZ[0]]}
+      rotation={[POSE_X[0], POSE_Y[0] - 0.6, POSE_Z[0]]}
+      position={[POSE_TX[0], POSE_TY[0], POSE_TZ[0] - 70]}
     >
       <primitive object={scene} />
     </group>
@@ -262,11 +317,26 @@ export default function GpuModel({
   const tabVisible = useTabVisible();
   const paused = reduced || !tabVisible;
 
+  // Reduced motion: don't mount WebGL at all. GpuPoster (rendered by the
+  // parent, ScrollGpuScene) already sits behind this component and keeps
+  // showing once this returns null — no canvas, no GLTF fetch, no
+  // Three.js JS cost for a viewer who asked for less motion.
+  if (reduced) return null;
+
   return (
-    <div className={className}>
+    // Mobile has no side column to dodge into — text stacks directly on
+    // top of this fixed background layer (see Hero.tsx's flex-col mobile
+    // layout), so no amount of repositioning clears it the way the
+    // lateral drift does on desktop. Real screenshots confirmed this:
+    // dimming is the reliable fix, not more position tuning.
+    <div className={className} style={{ opacity: mobile ? 0.2 : 1 }}>
       <Canvas
         dpr={[1, mobile ? 1.5 : 2]}
-        camera={{ position: [0, 0.3, POSE_ZOOM[0]], fov: 32 }}
+        // Starts ~1.7x farther out than the hero target; CameraRig's
+        // per-frame lerp toward POSE_ZOOM[0] pulls it in on mount, giving
+        // the GPU a real dolly-in entrance instead of appearing already
+        // framed.
+        camera={{ position: [0, 0.3, POSE_ZOOM[0] * 1.7], fov: 32 }}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
         frameloop={paused ? "demand" : "always"}
       >
@@ -275,7 +345,7 @@ export default function GpuModel({
         <CameraRig paused={paused} mobile={mobile} scrollProgress={scrollProgress} />
         {/* clean, neutral studio lighting — no color cast, so the card
             reads crisp and true-to-metal instead of tinted */}
-        <directionalLight position={[-2.2, 6, -3.5]} intensity={3.4} color="#ffffff" />
+        <directionalLight position={[-2.2, 6, -3.5]} intensity={2.1} color="#ffffff" />
         <directionalLight position={[6, -0.5, 2.5]} intensity={1.8} color="#ffffff" />
         <directionalLight position={[1, 1, 6]} intensity={0.6} color="#ffffff" />
         <directionalLight position={[-5, -2, 2]} intensity={0.35} color="#f2f4f5" />

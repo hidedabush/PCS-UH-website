@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Check } from "lucide-react";
 import SiteChrome from "@/components/SiteChrome";
-import GlassCard from "@/components/GlassCard";
+import Card from "@/components/Card";
 import Reveal from "@/components/Reveal";
 import Join from "@/components/Join";
 import { CONTACT_EMAIL } from "@/data/nav";
@@ -27,15 +27,13 @@ export default function MembershipPage() {
       <section className="relative pb-8 pt-36 md:pt-44">
         <div className="mx-auto max-w-site px-4 sm:px-6 lg:px-10">
           <Reveal>
-            <p className="font-mono text-[11px] tracking-[0.3em] text-gpu">
-              /// MEMBERSHIP
-            </p>
-            <h1 className="mt-4 max-w-2xl font-display text-4xl font-bold uppercase leading-tight tracking-tight text-textPrimary sm:text-5xl md:text-6xl">
+            <p className="mb-4 text-sm font-medium text-textMuted">Membership</p>
+            <h1 className="max-w-2xl text-4xl font-semibold tracking-tight text-white sm:text-5xl md:text-6xl">
               Join the parallel layer.
             </h1>
           </Reveal>
           <Reveal delay={0.08}>
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-textSecondary">
+            <p className="mt-6 max-w-xl text-base leading-relaxed text-textMuted">
               Open to all UH students. No prior GPU or CUDA experience
               required.
             </p>
@@ -49,18 +47,14 @@ export default function MembershipPage() {
       >
         <div className="mx-auto max-w-site px-4 sm:px-6 lg:px-10">
           <Reveal>
-            <GlassCard
-              className="mx-auto max-w-2xl p-8 text-center sm:p-12"
-              corners
-              beam
-            >
-              <p className="font-display text-5xl font-bold text-textPrimary">
+            <Card className="mx-auto max-w-2xl p-8 text-center sm:p-12">
+              <p className="text-5xl font-semibold text-white">
                 $15{" "}
                 <span className="text-lg font-normal text-textMuted">
                   / year
                 </span>
               </p>
-              <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.24em] text-textMuted">
+              <p className="mt-3 text-xs uppercase tracking-[0.1em] text-textFaint">
                 Open to all UH students · No prior experience required
               </p>
 
@@ -68,10 +62,10 @@ export default function MembershipPage() {
                 {BENEFITS.map((benefit) => (
                   <li
                     key={benefit}
-                    className="flex items-start gap-2.5 text-sm text-textSecondary"
+                    className="flex items-start gap-2.5 text-sm text-textMuted"
                   >
                     <Check
-                      className="mt-0.5 h-4 w-4 shrink-0 text-gpu"
+                      className="mt-0.5 h-4 w-4 shrink-0 text-accent"
                       aria-hidden
                     />
                     {benefit}
@@ -83,11 +77,11 @@ export default function MembershipPage() {
                 href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(
                   "UH PCS Membership Question"
                 )}`}
-                className="mt-8 inline-block font-mono text-xs uppercase tracking-[0.18em] text-textSecondary transition-colors hover:text-mint"
+                className="mt-8 inline-block text-sm text-textMuted transition-colors hover:text-white"
               >
                 Questions? Contact PCS →
               </a>
-            </GlassCard>
+            </Card>
           </Reveal>
         </div>
       </section>

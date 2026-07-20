@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import SiteChrome from "@/components/SiteChrome";
-import GlassCard from "@/components/GlassCard";
+import Card from "@/components/Card";
 import Reveal from "@/components/Reveal";
 import Projects from "@/components/Projects";
 import { CONTACT_EMAIL } from "@/data/nav";
@@ -17,15 +17,13 @@ export default function ProjectsPage() {
       <section className="relative pb-8 pt-36 md:pt-44">
         <div className="mx-auto max-w-site px-4 sm:px-6 lg:px-10">
           <Reveal>
-            <p className="font-mono text-[11px] tracking-[0.3em] text-gpu">
-              /// PROJECTS
-            </p>
-            <h1 className="mt-4 max-w-2xl font-display text-4xl font-bold uppercase leading-tight tracking-tight text-textPrimary sm:text-5xl md:text-6xl">
+            <p className="mb-4 text-sm font-medium text-textMuted">Projects</p>
+            <h1 className="max-w-2xl text-4xl font-semibold tracking-tight text-white sm:text-5xl md:text-6xl">
               See what we&apos;ve built.
             </h1>
           </Reveal>
           <Reveal delay={0.08}>
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-textSecondary">
+            <p className="mt-6 max-w-xl text-base leading-relaxed text-textMuted">
               GPU kernels, emulators, and simulations — built to be studied,
               forked, and shown.
             </p>
@@ -42,14 +40,14 @@ export default function ProjectsPage() {
       >
         <div className="mx-auto max-w-site px-4 text-center sm:px-6 lg:px-10">
           <Reveal>
-            <GlassCard className="mx-auto max-w-xl p-8 sm:p-10" corners beam>
-              <p className="font-mono text-[10px] tracking-[0.24em] text-gpu">
-                SUBMIT_A_PROJECT
+            <Card className="mx-auto max-w-xl p-8 sm:p-10">
+              <p className="text-xs font-medium uppercase tracking-[0.1em] text-textFaint">
+                Submit a project
               </p>
-              <h2 className="mt-3 font-display text-2xl font-bold text-textPrimary">
+              <h2 className="mt-3 text-2xl font-semibold text-white">
                 Built something worth showing?
               </h2>
-              <p className="mt-3 text-sm leading-relaxed text-textSecondary">
+              <p className="mt-3 text-sm leading-relaxed text-textMuted">
                 Members can propose projects for the pool — email a short
                 pitch and we&apos;ll help you scope it.
               </p>
@@ -57,11 +55,11 @@ export default function ProjectsPage() {
                 href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(
                   "UH PCS Project Submission"
                 )}`}
-                className="mt-6 inline-flex items-center justify-center rounded-md border border-lineActive bg-gpu px-5 py-3 font-mono text-xs font-medium uppercase tracking-[0.16em] text-obsidian transition-all hover:bg-mint hover:shadow-glowStrong"
+                className="mt-6 inline-flex items-center justify-center bg-accent px-5 py-3 text-sm font-medium text-black transition-colors hover:bg-accentHover"
               >
                 Submit a Project
               </a>
-            </GlassCard>
+            </Card>
           </Reveal>
         </div>
       </section>

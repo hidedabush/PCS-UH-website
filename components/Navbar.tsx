@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { Cpu, Github, Menu, X, ChevronRight } from "lucide-react";
+import { Cpu, Github, Menu, X } from "lucide-react";
 import { navLinks, GITHUB_URL } from "@/data/nav";
 import { cn } from "@/lib/utils";
 
@@ -13,7 +13,6 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
-  // Navbar opacity increases once the page scrolls.
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
@@ -21,7 +20,6 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Lock body scroll while the command palette is open.
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => {
@@ -29,7 +27,6 @@ export default function Navbar() {
     };
   }, [open]);
 
-  // Close the mobile menu on route change.
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
@@ -38,29 +35,23 @@ export default function Navbar() {
     <>
       <header
         className={cn(
-          "fixed inset-x-0 top-0 z-50 border-b border-line backdrop-blur-md transition-colors duration-300",
-          scrolled ? "bg-obsidian/85" : "bg-obsidian/45"
+          "fixed inset-x-0 top-0 z-50 border-b border-line transition-colors duration-300",
+          scrolled ? "bg-ink/95" : "bg-ink/70"
         )}
       >
         <nav
           className="mx-auto flex h-16 max-w-site items-center justify-between px-4 sm:px-6 lg:px-10"
           aria-label="Primary"
         >
-          {/* Left: identity */}
-          <Link href="/" className="flex items-center gap-3">
-            <span className="grid h-8 w-8 place-items-center rounded-md border border-lineActive bg-panel text-gpu shadow-glow">
+          <Link href="/" className="flex items-center gap-2.5">
+            <span className="grid h-8 w-8 place-items-center border border-line bg-panel text-accent">
               <Cpu className="h-4 w-4" aria-hidden />
             </span>
-            <span className="font-display text-sm font-bold tracking-[0.14em] text-textPrimary">
+            <span className="text-sm font-semibold tracking-tight text-white">
               UH PCS
-            </span>
-            <span className="hidden items-center gap-1.5 font-mono text-[10px] tracking-[0.2em] text-gpu sm:flex">
-              <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-gpu" />
-              [SYSTEM.ONLINE]
             </span>
           </Link>
 
-          {/* Center: links */}
           <ul className="hidden items-center gap-1 lg:flex">
             {navLinks.map((link) => {
               const isActive =
@@ -70,17 +61,15 @@ export default function Navbar() {
                   <Link
                     href={link.href}
                     className={cn(
-                      "relative rounded-sm px-3 py-2 font-mono text-[11px] uppercase tracking-[0.16em] transition-colors",
-                      isActive
-                        ? "text-mint"
-                        : "text-textSecondary hover:text-textPrimary"
+                      "relative px-3 py-2 text-sm font-medium transition-colors",
+                      isActive ? "text-white" : "text-textMuted hover:text-white"
                     )}
                   >
                     {link.label}
                     {isActive && (
                       <motion.span
                         layoutId="nav-active"
-                        className="absolute inset-x-2 -bottom-[1px] h-px bg-gpu shadow-glowStrong"
+                        className="absolute inset-x-3 -bottom-[1px] h-px bg-accent"
                         transition={{ type: "spring", stiffness: 350, damping: 30 }}
                       />
                     )}
@@ -90,27 +79,26 @@ export default function Navbar() {
             })}
           </ul>
 
-          {/* Right: CTAs */}
           <div className="flex items-center gap-2.5">
             <a
               href={GITHUB_URL}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="UH PCS on GitHub"
-              className="hidden h-9 w-9 items-center justify-center rounded-md border border-line text-textSecondary transition-colors hover:border-lineActive hover:text-mint sm:flex"
+              className="hidden h-9 w-9 items-center justify-center border border-line text-textMuted transition-colors hover:border-textFaint hover:text-white sm:flex"
             >
               <Github className="h-4 w-4" aria-hidden />
             </a>
             <Link
               href="/membership"
-              className="hidden rounded-md border border-lineActive bg-gpu/15 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.16em] text-mint transition-all hover:bg-gpu/25 hover:shadow-glow sm:block"
+              className="hidden bg-accent px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-accentHover sm:block"
             >
               Become a Member
             </Link>
             <button
               type="button"
               onClick={() => setOpen(true)}
-              className="flex h-9 w-9 items-center justify-center rounded-md border border-line text-textPrimary lg:hidden"
+              className="flex h-9 w-9 items-center justify-center border border-line text-white lg:hidden"
               aria-label="Open navigation menu"
               aria-expanded={open}
             >
@@ -120,27 +108,24 @@ export default function Navbar() {
         </nav>
       </header>
 
-      {/* Mobile: full-screen command palette */}
       <AnimatePresence>
         {open && (
           <motion.div
-            className="fixed inset-0 z-[80] flex flex-col bg-obsidian/97 backdrop-blur-xl lg:hidden"
+            className="fixed inset-0 z-[80] flex flex-col bg-ink lg:hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.22 }}
+            transition={{ duration: 0.2 }}
             role="dialog"
             aria-modal="true"
             aria-label="Navigation menu"
           >
             <div className="flex h-16 items-center justify-between border-b border-line px-4 sm:px-6">
-              <span className="font-mono text-[11px] tracking-[0.24em] text-gpu">
-                » RUN: NAVIGATE --TARGET
-              </span>
+              <span className="text-sm font-medium text-white">Menu</span>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="flex h-9 w-9 items-center justify-center rounded-md border border-line text-textPrimary"
+                className="flex h-9 w-9 items-center justify-center border border-line text-white"
                 aria-label="Close navigation menu"
               >
                 <X className="h-4 w-4" aria-hidden />
@@ -151,27 +136,16 @@ export default function Navbar() {
                 {navLinks.map((link, i) => (
                   <motion.li
                     key={link.href}
-                    initial={{ opacity: 0, x: -16 }}
+                    initial={{ opacity: 0, x: -12 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.05 + i * 0.045 }}
+                    transition={{ delay: 0.04 + i * 0.04 }}
                   >
                     <Link
                       href={link.href}
                       onClick={() => setOpen(false)}
-                      className="group flex items-center justify-between rounded-md border border-transparent px-4 py-4 transition-colors hover:border-line hover:bg-panel"
+                      className="block border border-transparent px-4 py-4 font-display text-2xl font-semibold tracking-tight text-white transition-colors hover:border-line hover:bg-panel"
                     >
-                      <span className="flex items-baseline gap-4">
-                        <span className="font-mono text-xs text-textMuted">
-                          {link.cmd}
-                        </span>
-                        <span className="font-display text-2xl font-bold uppercase tracking-tight text-textPrimary group-hover:text-mint">
-                          {link.label}
-                        </span>
-                      </span>
-                      <ChevronRight
-                        className="h-4 w-4 text-textMuted group-hover:text-gpu"
-                        aria-hidden
-                      />
+                      {link.label}
                     </Link>
                   </motion.li>
                 ))}
@@ -181,7 +155,7 @@ export default function Navbar() {
               <Link
                 href="/membership"
                 onClick={() => setOpen(false)}
-                className="block rounded-md border border-lineActive bg-gpu/15 px-4 py-3 text-center font-mono text-xs uppercase tracking-[0.2em] text-mint"
+                className="block bg-accent px-4 py-3 text-center text-sm font-medium text-black"
               >
                 Become a Member
               </Link>

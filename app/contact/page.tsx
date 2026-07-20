@@ -8,7 +8,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import SiteChrome from "@/components/SiteChrome";
-import GlassCard from "@/components/GlassCard";
+import Card from "@/components/Card";
 import Reveal from "@/components/Reveal";
 import { CONTACT_EMAIL } from "@/data/nav";
 
@@ -65,15 +65,13 @@ export default function ContactPage() {
       <section className="relative pb-8 pt-36 md:pt-44">
         <div className="mx-auto max-w-site px-4 sm:px-6 lg:px-10">
           <Reveal>
-            <p className="font-mono text-[11px] tracking-[0.3em] text-gpu">
-              /// CONTACT
-            </p>
-            <h1 className="mt-4 max-w-2xl font-display text-4xl font-bold uppercase leading-tight tracking-tight text-textPrimary sm:text-5xl md:text-6xl">
+            <p className="mb-4 text-sm font-medium text-textMuted">Contact</p>
+            <h1 className="max-w-2xl text-4xl font-semibold tracking-tight text-white sm:text-5xl md:text-6xl">
               Let&apos;s talk.
             </h1>
           </Reveal>
           <Reveal delay={0.08}>
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-textSecondary">
+            <p className="mt-6 max-w-xl text-base leading-relaxed text-textMuted">
               Route your message to the right officer — we respond within 48
               hours.
             </p>
@@ -86,28 +84,26 @@ export default function ContactPage() {
         aria-label="Inquiry tracks"
       >
         <div className="mx-auto max-w-site px-4 sm:px-6 lg:px-10">
-          <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {TRACKS.map((track, i) => (
               <Reveal key={track.label} delay={(i % 3) * 0.08} as="li">
-                <GlassCard className="flex h-full flex-col p-6" corners beam>
-                  <span className="grid h-11 w-11 place-items-center rounded-md border border-line bg-graphite text-gpu">
-                    <track.icon className="h-5 w-5" aria-hidden />
-                  </span>
-                  <h3 className="mt-4 font-display text-lg font-bold text-textPrimary">
+                <Card className="flex h-full flex-col p-6">
+                  <track.icon className="h-5 w-5 text-accent" aria-hidden />
+                  <h3 className="mt-4 text-lg font-semibold text-white">
                     {track.label}
                   </h3>
-                  <p className="mt-2 flex-1 text-sm leading-relaxed text-textSecondary">
+                  <p className="mt-2 flex-1 text-sm leading-relaxed text-textMuted">
                     {track.description}
                   </p>
                   <a
                     href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(
                       `UH PCS — ${track.subject}`
                     )}`}
-                    className="mt-5 inline-flex items-center gap-1.5 border-t border-line pt-4 font-mono text-[10px] uppercase tracking-[0.18em] text-textMuted transition-colors hover:text-mint"
+                    className="mt-5 inline-flex items-center gap-1.5 border-t border-line pt-4 text-sm text-textMuted transition-colors hover:text-white"
                   >
                     Email us →
                   </a>
-                </GlassCard>
+                </Card>
               </Reveal>
             ))}
           </ul>

@@ -6,8 +6,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2, Loader2 } from "lucide-react";
-import SectionLabel from "@/components/SectionLabel";
-import GlassCard from "@/components/GlassCard";
+import Heading from "@/components/Heading";
+import Card from "@/components/Card";
 import Reveal from "@/components/Reveal";
 import { cn } from "@/lib/utils";
 
@@ -54,13 +54,13 @@ export const joinSchema = z.object({
 type JoinForm = z.infer<typeof joinSchema>;
 
 const inputClasses =
-  "w-full rounded-md border border-line bg-obsidian/70 px-3.5 py-2.5 text-sm text-textPrimary placeholder:text-textMuted transition-colors focus:border-lineActive focus:outline-none focus:ring-1 focus:ring-gpu/40";
+  "w-full border border-line bg-black px-3.5 py-2.5 text-sm text-white placeholder:text-textFaint transition-colors focus:border-accent focus:outline-none";
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
   return (
-    <p role="alert" className="mt-1.5 font-mono text-[10px] tracking-wide text-uhred">
-      ERR: {message}
+    <p role="alert" className="mt-1.5 text-xs text-uhred">
+      {message}
     </p>
   );
 }
@@ -89,83 +89,69 @@ export default function Join() {
   return (
     <section
       id="join"
-      className="relative border-t border-line py-28 md:py-36"
+      className="relative border-t border-line py-24 md:py-32"
       aria-label="Join UH PCS"
     >
       <div className="mx-auto max-w-site px-4 sm:px-6 lg:px-10">
         <Reveal>
-          <SectionLabel
-            code="SEC.07 // ACCESS_CONTROL"
-            title="Initialize Membership"
+          <Heading
+            eyebrow="Membership"
+            title="Request access"
             subtitle="Join UH PCS to access workshops, project teams, GitHub repositories, sponsor events, and a community of students learning the future of computing."
           />
         </Reveal>
 
-        <div className="grid gap-6 lg:grid-cols-[1fr,1.4fr]">
-          {/* benefits */}
+        <div className="grid gap-4 lg:grid-cols-[1fr,1.4fr]">
           <Reveal>
-            <GlassCard className="h-full p-6 sm:p-8" corners>
-              <p className="mb-5 font-mono text-[10px] tracking-[0.24em] text-textMuted">
-                MEMBER_PRIVILEGES
+            <Card className="h-full p-6 sm:p-8">
+              <p className="mb-5 text-xs font-medium uppercase tracking-[0.1em] text-textFaint">
+                Member benefits
               </p>
               <ul className="space-y-3.5">
-                {BENEFITS.map((benefit, i) => (
-                  <li key={benefit} className="flex items-center gap-3 text-sm text-textSecondary">
-                    <span className="font-mono text-[10px] text-gpu">
-                      {String(i).padStart(2, "0")}
-                    </span>
-                    <span className="h-px w-4 bg-line" aria-hidden />
+                {BENEFITS.map((benefit) => (
+                  <li key={benefit} className="flex items-center gap-3 text-sm text-textMuted">
+                    <span className="h-1 w-1 shrink-0 bg-accent" aria-hidden />
                     {benefit}
                   </li>
                 ))}
               </ul>
-              <p className="mt-8 border-t border-line pt-5 font-mono text-[11px] leading-relaxed text-textMuted">
-                Join the node. Scale the system.
-              </p>
-            </GlassCard>
+            </Card>
           </Reveal>
 
-          {/* form / success */}
-          <Reveal delay={0.1}>
-            <GlassCard className="relative overflow-hidden p-6 sm:p-8" corners beam>
+          <Reveal delay={0.08}>
+            <Card className="relative overflow-hidden p-6 sm:p-8">
               <AnimatePresence mode="wait">
                 {submitted ? (
                   <motion.div
                     key="success"
-                    initial={{ opacity: 0, y: 16 }}
+                    initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="flex min-h-[420px] flex-col items-center justify-center text-center"
                     role="status"
                   >
-                    <span className="grid h-14 w-14 place-items-center rounded-full border border-lineActive bg-gpu/15 shadow-glow">
-                      <CheckCircle2 className="h-7 w-7 text-gpu" aria-hidden />
+                    <span className="grid h-14 w-14 place-items-center border border-accent/40 bg-accent/10">
+                      <CheckCircle2 className="h-7 w-7 text-accent" aria-hidden />
                     </span>
-                    <p className="mt-6 font-mono text-sm tracking-[0.18em] text-mint">
-                      ACCESS REQUEST RECEIVED
+                    <p className="mt-6 text-base font-semibold text-white">
+                      Request received
                     </p>
-                    <p className="mt-1 font-mono text-xs tracking-[0.18em] text-textMuted">
-                      // NODE_PENDING_APPROVAL
-                    </p>
-                    <p className="mt-5 max-w-sm text-sm leading-relaxed text-textSecondary">
+                    <p className="mt-5 max-w-sm text-sm leading-relaxed text-textMuted">
                       An officer will review your request and reach out with
-                      Discord + GitHub access. Watch your UH inbox.
+                      Discord and GitHub access. Watch your UH inbox.
                     </p>
                   </motion.div>
                 ) : (
                   <motion.form
                     key="form"
-                    exit={{ opacity: 0, y: -12 }}
+                    exit={{ opacity: 0, y: -10 }}
                     onSubmit={handleSubmit(onSubmit)}
                     noValidate
                     className="space-y-5"
                   >
                     <div className="grid gap-5 sm:grid-cols-2">
                       <div>
-                        <label
-                          htmlFor="fullName"
-                          className="mb-1.5 block font-mono text-[10px] tracking-[0.2em] text-textMuted"
-                        >
-                          FULL_NAME *
+                        <label htmlFor="fullName" className="mb-1.5 block text-xs font-medium text-textMuted">
+                          Full name
                         </label>
                         <input
                           id="fullName"
@@ -178,11 +164,8 @@ export default function Join() {
                         <FieldError message={errors.fullName?.message} />
                       </div>
                       <div>
-                        <label
-                          htmlFor="email"
-                          className="mb-1.5 block font-mono text-[10px] tracking-[0.2em] text-textMuted"
-                        >
-                          UH_EMAIL *
+                        <label htmlFor="email" className="mb-1.5 block text-xs font-medium text-textMuted">
+                          UH email
                         </label>
                         <input
                           id="email"
@@ -195,11 +178,8 @@ export default function Join() {
                         <FieldError message={errors.email?.message} />
                       </div>
                       <div>
-                        <label
-                          htmlFor="major"
-                          className="mb-1.5 block font-mono text-[10px] tracking-[0.2em] text-textMuted"
-                        >
-                          MAJOR *
+                        <label htmlFor="major" className="mb-1.5 block text-xs font-medium text-textMuted">
+                          Major
                         </label>
                         <input
                           id="major"
@@ -211,11 +191,8 @@ export default function Join() {
                         <FieldError message={errors.major?.message} />
                       </div>
                       <div>
-                        <label
-                          htmlFor="gradYear"
-                          className="mb-1.5 block font-mono text-[10px] tracking-[0.2em] text-textMuted"
-                        >
-                          GRADUATION_YEAR *
+                        <label htmlFor="gradYear" className="mb-1.5 block text-xs font-medium text-textMuted">
+                          Graduation year
                         </label>
                         <input
                           id="gradYear"
@@ -230,11 +207,8 @@ export default function Join() {
                     </div>
 
                     <div>
-                      <label
-                        htmlFor="experience"
-                        className="mb-1.5 block font-mono text-[10px] tracking-[0.2em] text-textMuted"
-                      >
-                        EXPERIENCE_LEVEL *
+                      <label htmlFor="experience" className="mb-1.5 block text-xs font-medium text-textMuted">
+                        Experience level
                       </label>
                       <select
                         id="experience"
@@ -253,22 +227,19 @@ export default function Join() {
                     </div>
 
                     <fieldset>
-                      <legend className="mb-2 font-mono text-[10px] tracking-[0.2em] text-textMuted">
-                        INTERESTS * — SELECT ALL THAT APPLY
+                      <legend className="mb-2 text-xs font-medium text-textMuted">
+                        Interests — select all that apply
                       </legend>
                       <div className="flex flex-wrap gap-2">
                         {INTERESTS.map((interest) => (
-                          <label
-                            key={interest}
-                            className="group/chip relative cursor-pointer"
-                          >
+                          <label key={interest} className="relative cursor-pointer">
                             <input
                               type="checkbox"
                               value={interest}
                               className="peer sr-only"
                               {...register("interests")}
                             />
-                            <span className="inline-block rounded-sm border border-line bg-obsidian/60 px-3 py-1.5 font-mono text-[11px] text-textSecondary transition-all peer-checked:border-lineActive peer-checked:bg-gpu/15 peer-checked:text-mint peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-mint">
+                            <span className="inline-block border border-line px-3 py-1.5 text-sm text-textMuted transition-colors peer-checked:border-accent peer-checked:bg-accent/10 peer-checked:text-accent peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-accent">
                               {interest}
                             </span>
                           </label>
@@ -280,12 +251,12 @@ export default function Join() {
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="flex w-full items-center justify-center gap-2 rounded-md border border-lineActive bg-gpu px-5 py-3.5 font-mono text-xs font-medium uppercase tracking-[0.2em] text-obsidian transition-all hover:bg-mint hover:shadow-glowStrong disabled:cursor-wait disabled:opacity-70"
+                      className="flex w-full items-center justify-center gap-2 bg-accent px-5 py-3.5 text-sm font-medium text-black transition-colors hover:bg-accentHover disabled:cursor-wait disabled:opacity-70"
                     >
                       {isSubmitting ? (
                         <>
                           <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                          Transmitting…
+                          Submitting…
                         </>
                       ) : (
                         "Request Access"
@@ -294,7 +265,7 @@ export default function Join() {
                   </motion.form>
                 )}
               </AnimatePresence>
-            </GlassCard>
+            </Card>
           </Reveal>
         </div>
       </div>
